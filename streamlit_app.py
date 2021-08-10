@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 st.set_page_config(layout="centered")
-import openpyxl
 from datetime import datetime, date
 import base64 
 import time
@@ -14,7 +13,7 @@ def main():
     username= st.sidebar.text_input('Username', value='John Doe')
     password= st.sidebar.text_input('Password', value='A123', type="password")
     privilege = st.sidebar.text_input('Resource', value='Entry')
-    employee_list = pd.read_excel("EmployeeList.xlsx", engine="openpyxl", index_col=0)
+    employee_list = pd.read_excel("EmployeeList.xlsx", index_col=0)
     employee_list['USERNAME'] = employee_list['Level'].astype(str)+'_'+employee_list['Name'].astype(str)
     employee_list['USERNAME'] = employee_list['USERNAME'].str.strip().str.replace(' ', '')
     employee_list['USERNAME'] = employee_list['USERNAME'].str.lower()
@@ -27,7 +26,7 @@ def main():
             if resource1 == "Analysis":
                 st.title(resource1)
                 st.sidebar.subheader("Successful Login!")
-                analysis_results = pd.read_excel("Results.xlsx", engine="openpyxl", index_col=0)
+                analysis_results = pd.read_excel("Results.xlsx", index_col=0)
                 analysis_results['Chargeable Amount'] = analysis_results['Hours']* analysis_results['Charge']
                 analysis_results = analysis_results[['Name', 'Company', 'Division', 'Year of Work','Start Time', 'End Time', 'Date', 'Hours', 'Charge', 'Chargeable Amount', 'Description']]
                 st.subheader("All Entries")
@@ -64,7 +63,7 @@ def main():
                 st.title(resource1)
                 change = st.selectbox("Change", options=["Employees", "Companies"])
                 if change == "Employees":
-                    df1 = pd.read_excel("EmployeeList.xlsx", engine="openpyxl", index_col=0)
+                    df1 = pd.read_excel("EmployeeList.xlsx", index_col=0)
                     st.table(df1)
                     st.subheader("Instructions:")
                     st.write("* Add Employee details as above seperated by commas for Addition")
@@ -82,14 +81,14 @@ def main():
                                 "PASSWORD": value_add[2],
                                 "Charge": value_add[3]
                             }, ignore_index=True)
-                            df1.to_excel("EmployeeList.xlsx", engine="openpyxl")
+                            df1.to_excel("EmployeeList.xlsx")
                     elif ad1 == "Delete":
                         del1 = st.text_input("Name to Delete")
                         if st.text_input("Admin Key", type="password") == "3.141592654":
                             df1 = df1[df1["Name"]!=str(del1)]
-                            df1.to_excel("EmployeeList.xlsx", engine="openpyxl")
+                            df1.to_excel("EmployeeList.xlsx")
                 if change == "Companies":
-                    df2 = pd.read_excel("ClientList.xlsx", engine="openpyxl", index_col=0)
+                    df2 = pd.read_excel("ClientList.xlsx", index_col=0)
                     st.table(df2)
                     st.subheader("Instructions:")
                     st.write("* Add Company Name for Addition/ Deletion")
@@ -101,19 +100,19 @@ def main():
                         if st.text_input("Admin Key", type="password") == "3.141592654":
                             df2 = df2.append({
                                 "Company": add2}, ignore_index=True)
-                            df2.to_excel("ClientList.xlsx", engine="openpyxl")
+                            df2.to_excel("ClientList.xlsx")
                     elif ad2 == "Delete":
                         del2 = st.text_input("Name to Delete")
                         if st.text_input("Admin Key", type="password") == "3.141592654":
                             df2 = df2[df2["Company"]!=str(del2)]
-                            df2.to_excel("ClientList.xlsx", engine="openpyxl")    
+                            df2.to_excel("ClientList.xlsx")    
         elif (up_key[0] == 'e') and (up_key in employee_list['USERNAME'].tolist()):
             st.sidebar.subheader("Successful Login!")
             resource = st.selectbox("Resource", options=["Timesheet Entry", "History & Correction"])
             if resource=="Timesheet Entry":
                 with st.form(key="Initial Information"):
                     st.title(resource)
-                    client_list = pd.read_excel("ClientList.xlsx", engine="openpyxl", index_col=0)
+                    client_list = pd.read_excel("ClientList.xlsx", index_col=0)
                     client = client_list["Company"].tolist()
                     workdiv_ = st.selectbox("Work Division", options=["Accounting", "Auditing", "Company Secretarial", "Tax", "Other", "Office"])
                     company_ = st.selectbox("Name of Company", options=client)
@@ -140,7 +139,7 @@ def main():
                         st.write("End Time: "+str(end_))
                         st.write("Date: "+str(date_))  
                     if (st.form_submit_button("Submit")) and (datetime.combine(date_, datetime.min.time()) <= today_):
-                        results = pd.read_excel("Results.xlsx", engine="openpyxl", index_col=0)
+                        results = pd.read_excel("Results.xlsx", index_col=0)
                         charge_ = employee_list.loc[employee_list['Name']==str(username)]
                         charge_ = int(charge_['Charge'])
                         results = results.append({"Key":str(datetime.now().strftime("%H:%M:%S"))+"_"+str(up_key),
@@ -159,7 +158,7 @@ def main():
                         pass
             elif resource=="History & Correction":
                 st.title(resource)
-                display_results = pd.read_excel("Results.xlsx", engine="openpyxl")
+                display_results = pd.read_excel("Results.xlsx")
                 display_results = display_results[['Name', 'Company', 'Division', 'Year of Work','Start Time', 'End Time', 'Date', 'Description']]
                 display_results = display_results[display_results['Name']==str(username)]
                 st.dataframe(display_results)
